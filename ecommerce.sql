@@ -245,7 +245,7 @@ BEGIN
 	-- interfering with SELECT statements.
 	SET NOCOUNT ON;
 
-	UPDATE [dbo].[Inventory] SET [Quantity] = @quantity WHERE [ProductId] = @productId
+	UPDATE [dbo].[Inventory] SET [Quantity] = [Quantity] - @quantity WHERE [ProductId] = @productId
 
 END
 

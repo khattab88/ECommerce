@@ -11,45 +11,38 @@ namespace ECommerce.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductProvider _productProvider;
+        private readonly IInventoryProvider _inventoryProvider;
         private readonly IPublisher publisher;
 
-        public ProductController(IProductProvider productProvider, IPublisher publisher)
+        public ProductController(IProductProvider productProvider, IInventoryProvider inventoryProvider, IPublisher publisher)
         {
             _productProvider = productProvider;
+            _inventoryProvider = inventoryProvider;
             this.publisher = publisher;
         }
 
-        // GET: api/<ProductController>
+        
         [HttpGet]
         public IEnumerable<Product> Get()
         {
             return _productProvider.Get();
         }
 
-        // GET api/<ProductController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<ProductController>
         [HttpPost]
-        public void Post([FromBody] Product product)
+        public async Task<Product> Post([FromBody] Product product)
         {
+            Product created = await _productProvider.CreateProduct(product);
+
+            await _inventoryProvider.CreateInventory(new Inventory() 
+            {
+                Name = product.ProductName,
+                Quantity = 100,
+                ProductId = created.Id,
+            });
+
             publisher.Publish(JsonConvert.SerializeObject(product), "report.product", null);
-        }
 
-        // PUT api/<ProductController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<ProductController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            return created;
         }
     }
 }
