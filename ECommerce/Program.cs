@@ -11,6 +11,8 @@ namespace ECommerce
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+
+            // builder.Services.AddControllers();
             builder.Services.AddControllersWithViews();
 
             var connectionString = builder.Configuration["ConnectionString"];
@@ -23,18 +25,20 @@ namespace ECommerce
             builder.Services.AddHttpClient("order", config =>
                 config.BaseAddress = new System.Uri("https://localhost:5001/"));
 
-            //builder.Services.AddSingleton<IConnectionProvider>(new ConnectionProvider("amqp://guest:guest@localhost:5672"));
-            //builder.Services.AddSingleton<IPublisher>(x => new Publisher(x.GetService<IConnectionProvider>(),
-            //        "inventory_exchange",
-            //        ExchangeType.Topic));
-            //builder.Services.AddSingleton<ISubscriber>(x => new Subscriber(x.GetService<IConnectionProvider>(),
-            //    "order_exchange",
-            //    "order_response",
-            //    "order.created",
-            //    ExchangeType.Topic));
+            builder.Services.AddSingleton<IConnectionProvider>(new ConnectionProvider("amqp://guest:guest@localhost:5672"));
+            builder.Services.AddSingleton<IPublisher>(x => new Publisher(x.GetService<IConnectionProvider>(),
+                    "inventory_exchange",
+                    ExchangeType.Topic));
 
-            // builder.Services.AddHostedService<OrderCreatedListener>();
+            builder.Services.AddSingleton<ISubscriber>(x => new Subscriber(x.GetService<IConnectionProvider>(),
+                "order_exchange",
+                "order_response",
+                "order.created",
+                ExchangeType.Topic));
 
+            builder.Services.AddHostedService<OrderCreatedListener>();
+
+            builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c => {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
                 {
@@ -54,6 +58,9 @@ namespace ECommerce
                 app.UseHsts();
             }
 
+            app.UseSwagger();
+            app.UseSwaggerUI();
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -61,6 +68,8 @@ namespace ECommerce
 
             app.UseAuthorization();
 
+
+            // app.MapControllers();
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");

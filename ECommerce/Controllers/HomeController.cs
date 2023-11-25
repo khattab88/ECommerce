@@ -1,4 +1,5 @@
-﻿using ECommerce.Models;
+﻿using ECommerce.DataAccess;
+using ECommerce.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -6,16 +7,19 @@ namespace ECommerce.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IOrderDetailsProvider _orderDetailsProvider;
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IOrderDetailsProvider orderDetailsProvider, ILogger<HomeController> logger)
         {
+            _orderDetailsProvider = orderDetailsProvider;
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var orderDetails = await _orderDetailsProvider.Get();
+            return View(orderDetails);
         }
 
         public IActionResult Privacy()
