@@ -5,7 +5,7 @@ Simple ECommerce Web App (MVC).
 
 ## Steps:
 1. Create a new SQL Server database (ecom)
-
+2. Run "ecommerce.sql"
 
 
 
