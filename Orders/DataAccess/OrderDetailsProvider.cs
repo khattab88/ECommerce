@@ -1,40 +1,30 @@
-﻿using ECommerce.Models;
+﻿using Dapper;
+using ECommerce.Models;
 using Newtonsoft.Json;
+using System.Data.SqlClient;
 
 namespace Orders.DataAccess
 {
     public interface IOrderDetailsProvider
     {
-        Task<OrderDetail[]> Get();
+        OrderDetail[] Get();
     }
 
     public class OrderDetailsProvider : IOrderDetailsProvider
     {
-        private readonly IHttpClientFactory httpClientFactory;
-        private readonly ILogger<OrderDetailsProvider> logger;
+        private readonly string _connectionString;
 
-        public OrderDetailsProvider(IHttpClientFactory httpClientFactory,
-            ILogger<OrderDetailsProvider> logger)
+        public OrderDetailsProvider(string connectionString)
         {
-            this.httpClientFactory = httpClientFactory;
-            this.logger = logger;
+            _connectionString = connectionString;
         }
 
-        public async Task<OrderDetail[]> Get()
+        public OrderDetail[] Get()
         {
-            try
-            {
-                using var client = httpClientFactory.CreateClient("order");
-                var response = await client.GetAsync("/api/order");
-                var data = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<OrderDetail[]>(data);
-            }
-            catch (System.Exception exc)
-            {
-                // Log the exception
-                logger.LogError($"Error getting order details {exc}");
-                return Array.Empty<OrderDetail>();
-            }
+            using var connection = new SqlConnection(_connectionString);
+            return connection.Query<OrderDetail>(@"SELECT o.UserName AS [User], od.ProductName AS Name, od.Quantity  FROM [Order] o
+                                            JOIN [OrderDetail] od on o.Id = od.OrderId")
+                .ToArray();
         }
     }
 }
