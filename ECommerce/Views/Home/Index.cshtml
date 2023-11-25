@@ -3,24 +3,26 @@
     ViewData["Title"] = "Home Page";
 }
 
-    <div class="text-center">
-        <table>
-            <thead>
-                <tr>
-                    <th>User Name</th>
-                    <th>Product Name</th>
-                    <th>Quantity</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table table-striped">
+                <thead>
                     <tr>
-                        <td> @item.User </td>
-                        <td>@item.Name </td>
-                        <td>@item.Quantity</td>
+                        <th>User Name</th>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td> @item.User </td>
+                            <td>@item.Name </td>
+                            <td>@item.Quantity</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
