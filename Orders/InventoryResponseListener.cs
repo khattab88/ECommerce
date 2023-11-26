@@ -25,6 +25,8 @@ namespace Orders
         private bool Subscribe(string message, IDictionary<string, object> header)
         {
             var response = JsonConvert.DeserializeObject<InventoryResponse>(message);
+
+            // SAGA Patterns Rollback with Compensation action (delete order if inverntory update failed)
             if (!response.IsSuccess)
             {
                 orderDeletor.Delete(response.OrderId).GetAwaiter().GetResult();
